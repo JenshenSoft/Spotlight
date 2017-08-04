@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
                 float oneX = oneLocation[0] + one.getWidth() / 2f;
                 float oneY = oneLocation[1] + one.getHeight() / 2f;
                 // make an target
-                SimpleTarget firstTarget = new SimpleTarget.Builder(MainActivity.this).setPoint(oneX, oneY)
+                SimpleTarget firstTarget = new SimpleTarget.Builder(MainActivity.this)
+                        .addPoint(oneX, oneY)
                         .setRadius(100f)
                         .setTitle("first title")
                         .setDescription("first description")
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
                 PointF point =
                         new PointF(twoLocation[0] + two.getWidth() / 2f, twoLocation[1] + two.getHeight() / 2f);
                 // make an target
-                SimpleTarget secondTarget = new SimpleTarget.Builder(MainActivity.this).setPoint(point)
+                SimpleTarget secondTarget = new SimpleTarget.Builder(MainActivity.this)
+                        .addPoint(point)
                         .setRadius(80f)
                         .setTitle("second title")
                         .setDescription("second description")
@@ -61,7 +63,10 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
                 SimpleTarget thirdTarget =
-                        new SimpleTarget.Builder(MainActivity.this).setPoint(findViewById(R.id.three))
+                        new SimpleTarget.Builder(MainActivity.this)
+                                .addPoint(findViewById(R.id.one))
+                                .addPoint(findViewById(R.id.two))
+                                .addPoint(findViewById(R.id.three))
                                 .setRadius(200f)
                                 .setTitle("third title")
                                 .setDescription("third description")
@@ -94,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
                 // make an target
                 CustomTarget thirdTarget =
-                        new CustomTarget.Builder(MainActivity.this).setPoint(findViewById(R.id.three))
+                        new CustomTarget.Builder(MainActivity.this)
+                                .addPoint(findViewById(R.id.three))
                                 .setRadius(200f)
                                 .setView(R.layout.layout_target)
                                 .build();

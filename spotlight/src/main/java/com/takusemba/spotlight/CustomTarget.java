@@ -5,6 +5,8 @@ import android.graphics.PointF;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 
+import java.util.List;
+
 /**
  * Target
  *
@@ -13,7 +15,7 @@ import android.view.View;
  **/
 public class CustomTarget implements Target {
 
-    private PointF point;
+    private List<PointF> points;
     private float radius;
     private View view;
     private OnTargetStateChangedListener listener;
@@ -21,16 +23,16 @@ public class CustomTarget implements Target {
     /**
      * Constructor
      */
-    private CustomTarget(PointF point, float radius, View view, OnTargetStateChangedListener listener) {
-        this.point = point;
+    private CustomTarget(List<PointF> points, float radius, View view, OnTargetStateChangedListener listener) {
+        this.points = points;
         this.radius = radius;
         this.view = view;
         this.listener = listener;
     }
 
     @Override
-    public PointF getPoint() {
-        return point;
+    public List<PointF> getPoints() {
+        return points;
     }
 
     @Override
@@ -99,8 +101,7 @@ public class CustomTarget implements Target {
          */
         @Override
         public CustomTarget build() {
-            PointF point = new PointF(startX, startY);
-            return new CustomTarget(point, radius, view, listener);
+            return new CustomTarget(points, radius, view, listener);
         }
     }
 }

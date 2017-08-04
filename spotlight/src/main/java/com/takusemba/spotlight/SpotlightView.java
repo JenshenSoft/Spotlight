@@ -17,6 +17,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Spotlight View
  *
@@ -27,7 +30,7 @@ class SpotlightView extends FrameLayout {
 
     private final Paint paint = new Paint();
     private final Paint spotPaint = new Paint();
-    private PointF point = new PointF();
+    private final List<PointF> points = new ArrayList<>();
     private ValueAnimator animator;
     private OnSpotlightStateChangedListener listener;
 
@@ -98,7 +101,9 @@ class SpotlightView extends FrameLayout {
         paint.setColor(ContextCompat.getColor(getContext(), R.color.background));
         canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
         if (animator != null) {
-            canvas.drawCircle(point.x, point.y, (float) animator.getAnimatedValue(), spotPaint);
+            for (PointF point : points) {
+                canvas.drawCircle(point.x, point.y, (float) animator.getAnimatedValue(), spotPaint);
+            }
         }
     }
 
@@ -111,8 +116,9 @@ class SpotlightView extends FrameLayout {
      * @param duration  duration of the animation
      * @param animation type of the animation
      */
-    void turnUp(float x, float y, float radius, long duration, TimeInterpolator animation) {
-        this.point.set(x, y);
+    void turnUp(List<PointF> points, float radius, long duration, TimeInterpolator animation) {
+        this.points.clear();
+        this.points.addAll(points);
         animator = ValueAnimator.ofFloat(0f, radius);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override

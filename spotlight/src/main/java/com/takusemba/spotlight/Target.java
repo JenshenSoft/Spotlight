@@ -3,6 +3,9 @@ package com.takusemba.spotlight;
 import android.graphics.PointF;
 import android.view.View;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Target
  *
@@ -16,7 +19,7 @@ interface Target {
      *
      * @return the point of this Target
      */
-    PointF getPoint();
+    List<PointF> getPoints();
 
     /**
      * gets the radius of this Target
@@ -44,8 +47,8 @@ interface Target {
      */
     Target DEFAULT = new Target() {
         @Override
-        public PointF getPoint() {
-            return new PointF(0, 0);
+        public List<PointF> getPoints() {
+            return Collections.singletonList(new PointF(0, 0));
         }
 
         @Override

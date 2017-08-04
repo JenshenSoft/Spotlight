@@ -188,8 +188,7 @@ public class Spotlight {
             Target target = targets.get(0);
             getSpotlightView().removeAllViews();
             getSpotlightView().addView(target.getView());
-            getSpotlightView().turnUp(target.getPoint().x, target.getPoint().y, target.getRadius(),
-                    duration, animation);
+            getSpotlightView().turnUp(target.getPoints(), target.getRadius(), duration, animation);
             if (target.getListener() != null) target.getListener().onStarted(target);
         }
     }

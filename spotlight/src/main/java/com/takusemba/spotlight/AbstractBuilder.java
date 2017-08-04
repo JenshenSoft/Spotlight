@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by takusemba on 2017/06/28.
@@ -15,8 +17,7 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
 
     private WeakReference<Activity> contextWeakReference;
     protected OnTargetStateChangedListener listener;
-    protected float startX = 0f;
-    protected float startY = 0f;
+    protected List<PointF> points;
     protected float radius = 100f;
 
     /**
@@ -43,6 +44,7 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      */
     protected AbstractBuilder(@NonNull Activity context) {
         contextWeakReference = new WeakReference<>(context);
+        points = new ArrayList<>();
     }
 
     /**
@@ -52,9 +54,8 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      * @param x starting position of x where spotlight reveals
      * @return This Builder
      */
-    public T setPoint(float x, float y) {
-        this.startX = x;
-        this.startY = y;
+    public T addPoint(float x, float y) {
+        points.add(new PointF(x, y));
         return self();
     }
 
@@ -64,8 +65,8 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      * @param point starting position where spotlight reveals
      * @return This Builder
      */
-    public T setPoint(@NonNull PointF point) {
-        return setPoint(point.x, point.y);
+    public T addPoint(@NonNull PointF point) {
+        return addPoint(point.x, point.y);
     }
 
     /**
@@ -75,12 +76,12 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      * @param view starting position where spotlight reveals
      * @return This Builder
      */
-    public T setPoint(@NonNull View view) {
+    public T addPoint(@NonNull View view) {
         int[] location = new int[2];
         view.getLocationInWindow(location);
         int x = location[0] + view.getWidth() / 2;
         int y = location[1] + view.getHeight() / 2;
-        return setPoint(x, y);
+        return addPoint(x, y);
     }
 
     /**

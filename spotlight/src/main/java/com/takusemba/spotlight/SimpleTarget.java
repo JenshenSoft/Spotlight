@@ -11,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 /**
  * Position Target
  *
@@ -19,7 +21,7 @@ import android.widget.TextView;
  **/
 public class SimpleTarget implements Target {
 
-    private PointF point;
+    private List<PointF> points;
     private float radius;
     private View view;
     private OnTargetStateChangedListener listener;
@@ -27,16 +29,16 @@ public class SimpleTarget implements Target {
     /**
      * Constructor
      */
-    private SimpleTarget(PointF point, float radius, View view, OnTargetStateChangedListener listener) {
-        this.point = point;
+    private SimpleTarget(List<PointF> points, float radius, View view, OnTargetStateChangedListener listener) {
+        this.points = points;
         this.radius = radius;
         this.view = view;
         this.listener = listener;
     }
 
     @Override
-    public PointF getPoint() {
-        return point;
+    public List<PointF> getPoints() {
+        return points;
     }
 
     @Override
@@ -112,9 +114,8 @@ public class SimpleTarget implements Target {
             View view = getContext().getLayoutInflater().inflate(R.layout.layout_spotlight, null);
             ((TextView) view.findViewById(R.id.title)).setText(title);
             ((TextView) view.findViewById(R.id.description)).setText(description);
-            PointF point = new PointF(startX, startY);
-            calculatePosition(point, radius, view);
-            return new SimpleTarget(point, radius, view, listener);
+            calculatePosition(points.get(0), radius, view);
+            return new SimpleTarget(points, radius, view, listener);
         }
 
         /**
