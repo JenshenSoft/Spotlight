@@ -43,23 +43,10 @@ public class Spotlight {
     private OnSpotlightStartedListener startedListener;
     private OnSpotlightEndedListener endedListener;
 
-    /**
-     * Constructor
-     *
-     * @param activity Activity to create Spotlight
-     */
-    private Spotlight(Activity activity) {
-        contextWeakReference = new WeakReference<>(activity);
-    }
+    private Spotlight(){}
 
-    /**
-     * Create Spotlight with activity reference
-     *
-     * @param activity Activity to create Spotlight
-     * @return This Spotlight
-     */
-    public static Spotlight with(@NonNull Activity activity) {
-        return new Spotlight(activity);
+    public static Spotlight with() {
+        return new Spotlight();
     }
 
     /**
@@ -78,17 +65,6 @@ public class Spotlight {
      */
     private static SpotlightView getSpotlightView() {
         return spotlightViewWeakReference.get();
-    }
-
-    /**
-     * sets {@link Target}s to Spotlight
-     *
-     * @param targets targets to show
-     * @return the SpotlightView
-     */
-    public <T extends Target> Spotlight setTargets(@NonNull T... targets) {
-        this.targets = new ArrayList<>(Arrays.asList(targets));
-        return this;
     }
 
     /**
@@ -139,31 +115,28 @@ public class Spotlight {
     /**
      * Shows {@link SpotlightView}
      */
-    public void start() {
-        spotlightView();
+    public  <T extends Target> void start(@NonNull Activity activity, @NonNull T... targets) {
+        this.targets = new ArrayList<>(Arrays.asList(targets));
+        if (contextWeakReference == null || contextWeakReference.isEnqueued()) {
+            contextWeakReference = new WeakReference<>(activity);
+        }
+        if (spotlightViewWeakReference != null && spotlightViewWeakReference.isEnqueued()) {
+            setUpSpotlightView(spotlightViewWeakReference.get());
+        } else {
+            SpotlightView spotlightView = createSpotlightView(activity);
+            spotlightViewWeakReference = new WeakReference<>(spotlightView);
+            setUpSpotlightView(spotlightView);
+        }
     }
 
-    /**
-     * Creates the spotlight view and starts
-     */
-    @SuppressWarnings("unchecked")
-    private void spotlightView() {
-        if (getContext() == null) {
-            throw new RuntimeException("context is null");
-        }
-        final View decorView = ((Activity) getContext()).getWindow().getDecorView();
-        SpotlightView spotlightView = new SpotlightView(getContext());
-        spotlightViewWeakReference = new WeakReference<>(spotlightView);
-        spotlightView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        ((ViewGroup) decorView).addView(spotlightView);
+    private void setUpSpotlightView(SpotlightView spotlightView) {
         spotlightView.setOnSpotlightStateChangedListener(new SpotlightView.OnSpotlightStateChangedListener() {
             @Override
             public void onTargetClosed() {
                 if (!targets.isEmpty()) {
                     Target target = targets.remove(0);
                     if (target.getListener() != null) target.getListener().onEnded(target);
-                    if (targets.size() > 0) {
+                    if (!targets.isEmpty()) {
                         startTarget();
                     } else {
                         finishSpotlight();
@@ -180,11 +153,27 @@ public class Spotlight {
     }
 
     /**
+     * Creates the spotlight view and starts
+     */
+    @SuppressWarnings("unchecked")
+    private SpotlightView createSpotlightView(Activity context) {
+        if (context == null) {
+            throw new RuntimeException("context is null");
+        }
+        final View decorView = ((Activity) context).getWindow().getDecorView();
+        SpotlightView spotlightView = new SpotlightView(getContext());
+        spotlightView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        ((ViewGroup) decorView).addView(spotlightView);
+        return spotlightView;
+    }
+
+    /**
      * show Target
      */
     @SuppressWarnings("unchecked")
     private void startTarget() {
-        if (targets != null && targets.size() > 0) {
+        if (targets != null && !targets.isEmpty()) {
             Target target = targets.get(0);
             getSpotlightView().removeAllViews();
             getSpotlightView().addView(target.getView());
@@ -227,7 +216,7 @@ public class Spotlight {
      * hide Target
      */
     private void finishTarget() {
-        if (targets != null && targets.size() > 0) {
+        if (targets != null && !targets.isEmpty()) {
             Target target = targets.get(0);
             getSpotlightView().turnDown(target.getRadius(), duration, animation);
         }

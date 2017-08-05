@@ -15,12 +15,28 @@ import com.takusemba.spotlight.SimpleTarget;
 import com.takusemba.spotlight.Spotlight;
 
 public class MainActivity extends AppCompatActivity {
+    Spotlight spotlight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        spotlight = Spotlight.with()
+                .setDuration(1000L)
+                .setAnimation(new DecelerateInterpolator(2f))
+                .setOnSpotlightStartedListener(new OnSpotlightStartedListener() {
+                    @Override
+                    public void onStarted() {
+                        Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                })
+                .setOnSpotlightEndedListener(new OnSpotlightEndedListener() {
+                    @Override
+                    public void onEnded() {
+                        Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
+                    }
+                });
         findViewById(R.id.simple_target).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,24 +88,8 @@ public class MainActivity extends AppCompatActivity {
                                 .setDescription("third description")
                                 .build();
 
-                Spotlight.with(MainActivity.this)
-                        .setDuration(1000L)
-                        .setAnimation(new DecelerateInterpolator(2f))
-                        .setTargets(firstTarget, secondTarget, thirdTarget)
-                        .setOnSpotlightStartedListener(new OnSpotlightStartedListener() {
-                            @Override
-                            public void onStarted() {
-                                Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT)
-                                        .show();
-                            }
-                        })
-                        .setOnSpotlightEndedListener(new OnSpotlightEndedListener() {
-                            @Override
-                            public void onEnded() {
-                                Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .start();
+
+                spotlight.start(MainActivity.this, firstTarget, secondTarget, thirdTarget);
             }
         });
 
@@ -105,24 +105,7 @@ public class MainActivity extends AppCompatActivity {
                                 .setView(R.layout.layout_target)
                                 .build();
 
-                Spotlight.with(MainActivity.this)
-                        .setDuration(1000L)
-                        .setAnimation(new DecelerateInterpolator(2f))
-                        .setTargets(thirdTarget)
-                        .setOnSpotlightStartedListener(new OnSpotlightStartedListener() {
-                            @Override
-                            public void onStarted() {
-                                Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT)
-                                        .show();
-                            }
-                        })
-                        .setOnSpotlightEndedListener(new OnSpotlightEndedListener() {
-                            @Override
-                            public void onEnded() {
-                                Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .start();
+                spotlight.start(MainActivity.this, thirdTarget);
             }
         });
     }
