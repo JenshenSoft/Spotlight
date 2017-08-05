@@ -11,9 +11,8 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Spotlight
@@ -35,36 +34,16 @@ public class Spotlight {
     private static final long DEFAULT_DURATION = 1000L;
     private static final TimeInterpolator DEFAULT_ANIMATION = new DecelerateInterpolator(2f);
 
-    private static WeakReference<SpotlightView> spotlightViewWeakReference;
-    private static WeakReference<Activity> contextWeakReference;
-    private ArrayList<? extends Target> targets;
     private long duration = DEFAULT_DURATION;
     private TimeInterpolator animation = DEFAULT_ANIMATION;
     private OnSpotlightStartedListener startedListener;
     private OnSpotlightEndedListener endedListener;
 
-    private Spotlight(){}
+    private Spotlight() {
+    }
 
     public static Spotlight with() {
         return new Spotlight();
-    }
-
-    /**
-     * Return context weak reference
-     *
-     * @return the activity
-     */
-    private static Context getContext() {
-        return contextWeakReference.get();
-    }
-
-    /**
-     * Returns {@link SpotlightView} weak reference
-     *
-     * @return the SpotlightView
-     */
-    private static SpotlightView getSpotlightView() {
-        return spotlightViewWeakReference.get();
     }
 
     /**
@@ -115,21 +94,12 @@ public class Spotlight {
     /**
      * Shows {@link SpotlightView}
      */
-    public  <T extends Target> void start(@NonNull Activity activity, @NonNull T... targets) {
-        this.targets = new ArrayList<>(Arrays.asList(targets));
-        if (contextWeakReference == null || contextWeakReference.isEnqueued()) {
-            contextWeakReference = new WeakReference<>(activity);
-        }
-        if (spotlightViewWeakReference != null && spotlightViewWeakReference.isEnqueued()) {
-            setUpSpotlightView(spotlightViewWeakReference.get());
-        } else {
-            SpotlightView spotlightView = createSpotlightView(activity);
-            spotlightViewWeakReference = new WeakReference<>(spotlightView);
-            setUpSpotlightView(spotlightView);
-        }
+    public <T extends Target> void start(@NonNull Activity activity, @NonNull T... targets) {
+        SpotlightView spotlightView = createSpotlightView(activity);
+        setUpSpotlightView(activity, spotlightView, Arrays.asList(targets));
     }
 
-    private void setUpSpotlightView(SpotlightView spotlightView) {
+    private <T extends Target> void setUpSpotlightView(final Context context, final SpotlightView spotlightView, final @NonNull List<T> targets) {
         spotlightView.setOnSpotlightStateChangedListener(new SpotlightView.OnSpotlightStateChangedListener() {
             @Override
             public void onTargetClosed() {
@@ -137,19 +107,24 @@ public class Spotlight {
                     Target target = targets.remove(0);
                     if (target.getListener() != null) target.getListener().onEnded(target);
                     if (!targets.isEmpty()) {
-                        startTarget();
+                        startTarget(targets, spotlightView);
                     } else {
-                        finishSpotlight();
+                        finishSpotlight(context, spotlightView);
                     }
                 }
             }
 
             @Override
             public void onTargetClicked() {
-                finishTarget();
+                finishTarget(targets, spotlightView);
             }
         });
-        startSpotlight();
+        spotlightView.post(new Runnable() {
+            @Override
+            public void run() {
+                startSpotlight(targets, spotlightView);
+            }
+        });
     }
 
     /**
@@ -161,7 +136,7 @@ public class Spotlight {
             throw new RuntimeException("context is null");
         }
         final View decorView = ((Activity) context).getWindow().getDecorView();
-        SpotlightView spotlightView = new SpotlightView(getContext());
+        SpotlightView spotlightView = new SpotlightView(context);
         spotlightView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         ((ViewGroup) decorView).addView(spotlightView);
@@ -172,12 +147,12 @@ public class Spotlight {
      * show Target
      */
     @SuppressWarnings("unchecked")
-    private void startTarget() {
-        if (targets != null && !targets.isEmpty()) {
+    private <T extends Target> void startTarget(@NonNull List<T> targets, SpotlightView spotlightView) {
+        if (!targets.isEmpty()) {
             Target target = targets.get(0);
-            getSpotlightView().removeAllViews();
-            getSpotlightView().addView(target.getView());
-            getSpotlightView().turnUp(target.getPoints(), target.getRadius(), duration, animation);
+            spotlightView.removeAllViews();
+            spotlightView.addView(target.getView());
+            spotlightView.turnUp(target.getPoints(), target.getRadius(), duration, animation);
             if (target.getListener() != null) target.getListener().onStarted(target);
         }
     }
@@ -185,8 +160,8 @@ public class Spotlight {
     /**
      * show Spotlight
      */
-    private void startSpotlight() {
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(getSpotlightView(), "alpha", 0f, 1f);
+    private <T extends Target> void startSpotlight(@NonNull final List<T> targets, final SpotlightView spotlightView) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 0f, 1f);
         objectAnimator.setDuration(START_SPOTLIGHT_DURATION);
         objectAnimator.addListener(new Animator.AnimatorListener() {
             @Override
@@ -196,7 +171,7 @@ public class Spotlight {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                startTarget();
+                startTarget(targets, spotlightView);
             }
 
             @Override
@@ -215,18 +190,18 @@ public class Spotlight {
     /**
      * hide Target
      */
-    private void finishTarget() {
-        if (targets != null && !targets.isEmpty()) {
+    private <T extends Target> void finishTarget(@NonNull List<T> targets, SpotlightView spotlightView) {
+        if (!targets.isEmpty()) {
             Target target = targets.get(0);
-            getSpotlightView().turnDown(target.getRadius(), duration, animation);
+            spotlightView.turnDown(target.getRadius(), duration, animation);
         }
     }
 
     /**
      * hide Spotlight
      */
-    private void finishSpotlight() {
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(getSpotlightView(), "alpha", 1f, 0f);
+    private void finishSpotlight(final Context context, final SpotlightView spotlightView) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 1f, 0f);
         objectAnimator.setDuration(FINISH_SPOTLIGHT_DURATION);
         objectAnimator.addListener(new Animator.AnimatorListener() {
             @Override
@@ -236,8 +211,8 @@ public class Spotlight {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                final View decorView = ((Activity) getContext()).getWindow().getDecorView();
-                ((ViewGroup) decorView).removeView(getSpotlightView());
+                final View decorView = ((Activity) context).getWindow().getDecorView();
+                ((ViewGroup) decorView).removeView(spotlightView);
                 if (endedListener != null) endedListener.onEnded();
             }
 
