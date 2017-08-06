@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         spotlight = Spotlight.with()
                 .setDuration(1000L)
                 .setAnimation(new DecelerateInterpolator(2f))
+                .setCloseAfterEnd(false)
                 .setOnSpotlightStartedListener(new OnSpotlightStartedListener() {
                     @Override
                     public void onStarted() {
@@ -33,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setOnSpotlightEndedListener(new OnSpotlightEndedListener() {
                     @Override
-                    public void onEnded() {
+                    public void onEnded(boolean closed) {
+                        startTutorial();
                         Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -41,55 +43,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                View one = findViewById(R.id.one);
-                int[] oneLocation = new int[2];
-                one.getLocationInWindow(oneLocation);
-                float oneX = oneLocation[0] + one.getWidth() / 2f;
-                float oneY = oneLocation[1] + one.getHeight() / 2f;
-                // make an target
-                SimpleTarget firstTarget = new SimpleTarget.Builder(MainActivity.this)
-                        .addPoint(oneX, oneY)
-                        .setRadius(100f)
-                        .setTitle("first title")
-                        .setDescription("first description")
-                        .build();
-
-                View two = findViewById(R.id.two);
-                int[] twoLocation = new int[2];
-                two.getLocationInWindow(twoLocation);
-                PointF point =
-                        new PointF(twoLocation[0] + two.getWidth() / 2f, twoLocation[1] + two.getHeight() / 2f);
-                // make an target
-                SimpleTarget secondTarget = new SimpleTarget.Builder(MainActivity.this)
-                        .addPoint(point)
-                        .setRadius(80f)
-                        .setTitle("second title")
-                        .setDescription("second description")
-                        .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
-                            @Override
-                            public void onStarted(SimpleTarget target) {
-                                Toast.makeText(MainActivity.this, "target is started", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onEnded(SimpleTarget target) {
-                                Toast.makeText(MainActivity.this, "target is ended", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .build();
-
-                SimpleTarget thirdTarget =
-                        new SimpleTarget.Builder(MainActivity.this)
-                                .addPoint(findViewById(R.id.one))
-                                .addPoint(findViewById(R.id.two))
-                                .addPoint(findViewById(R.id.three))
-                                .setRadius(200f)
-                                .setTitle("third title")
-                                .setDescription("third description")
-                                .build();
-
-
-                spotlight.start(MainActivity.this, firstTarget, secondTarget, thirdTarget);
+                startTutorial();
             }
         });
 
@@ -108,5 +62,57 @@ public class MainActivity extends AppCompatActivity {
                 spotlight.start(MainActivity.this, thirdTarget);
             }
         });
+    }
+
+    private void startTutorial() {
+        View one = findViewById(R.id.one);
+        int[] oneLocation = new int[2];
+        one.getLocationInWindow(oneLocation);
+        float oneX = oneLocation[0] + one.getWidth() / 2f;
+        float oneY = oneLocation[1] + one.getHeight() / 2f;
+        // make an target
+        SimpleTarget firstTarget = new SimpleTarget.Builder(MainActivity.this)
+                .addPoint(oneX, oneY)
+                .setRadius(100f)
+                .setTitle("first title")
+                .setDescription("first description")
+                .build();
+
+        View two = findViewById(R.id.two);
+        int[] twoLocation = new int[2];
+        two.getLocationInWindow(twoLocation);
+        PointF point =
+                new PointF(twoLocation[0] + two.getWidth() / 2f, twoLocation[1] + two.getHeight() / 2f);
+        // make an target
+        SimpleTarget secondTarget = new SimpleTarget.Builder(MainActivity.this)
+                .addPoint(point)
+                .setRadius(80f)
+                .setTitle("second title")
+                .setDescription("second description")
+                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
+                    @Override
+                    public void onStarted(SimpleTarget target) {
+                        Toast.makeText(MainActivity.this, "target is started", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onEnded(SimpleTarget target) {
+                        Toast.makeText(MainActivity.this, "target is ended", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .build();
+
+        SimpleTarget thirdTarget =
+                new SimpleTarget.Builder(MainActivity.this)
+                        .addPoint(findViewById(R.id.one))
+                        .addPoint(findViewById(R.id.two))
+                        .addPoint(findViewById(R.id.three))
+                        .setRadius(200f)
+                        .setTitle("third title")
+                        .setDescription("third description")
+                        .build();
+
+
+        spotlight.start(MainActivity.this, firstTarget, secondTarget, thirdTarget);
     }
 }

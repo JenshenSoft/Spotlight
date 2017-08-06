@@ -10,5 +10,5 @@ public interface OnSpotlightEndedListener {
     /**
      * Called when Spotlight is ended
      */
-    void onEnded();
+    void onEnded(boolean closed);
 }

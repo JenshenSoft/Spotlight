@@ -36,7 +36,7 @@ public class Spotlight {
     private static final TimeInterpolator DEFAULT_ANIMATION = new DecelerateInterpolator(2f);
 
     private long duration = DEFAULT_DURATION;
-    private boolean closeAfterEnd;
+    private boolean closeAfterEnd = true;
     private TimeInterpolator animation = DEFAULT_ANIMATION;
     private OnSpotlightStartedListener startedListener;
     private OnSpotlightEndedListener endedListener;
@@ -108,11 +108,20 @@ public class Spotlight {
      * Shows {@link SpotlightView}
      */
     public <T extends Target> void start(@NonNull Activity activity, @NonNull T... targets) {
-        SpotlightView spotlightView = createSpotlightView(activity);
-        setUpSpotlightView(activity, spotlightView, new ArrayList<>(Arrays.asList(targets)));
+        SpotlightView spotlightView = activity.getWindow().getDecorView().findViewById(R.id.tutorial_container);
+        boolean firstStart = false;
+        if (spotlightView == null) {
+            firstStart = true;
+            spotlightView = createSpotlightView(activity);
+            spotlightView.setId(R.id.tutorial_container);
+        }
+        setUpSpotlightView(activity, spotlightView, firstStart, new ArrayList<>(Arrays.asList(targets)));
     }
 
-    private <T extends Target> void setUpSpotlightView(final Context context, final SpotlightView spotlightView, final @NonNull List<T> targets) {
+    private <T extends Target> void setUpSpotlightView(final Context context,
+                                                       final SpotlightView spotlightView,
+                                                       final boolean firstStart,
+                                                       final @NonNull List<T> targets) {
         spotlightView.setOnSpotlightStateChangedListener(new SpotlightView.OnSpotlightStateChangedListener() {
             @Override
             public void onTargetClosed() {
@@ -143,7 +152,7 @@ public class Spotlight {
         spotlightView.post(new Runnable() {
             @Override
             public void run() {
-                startSpotlight(targets, spotlightView);
+                startSpotlight(targets, firstStart, spotlightView);
             }
         });
     }
@@ -173,7 +182,7 @@ public class Spotlight {
             Target target = targets.get(0);
             removeTutorialView(spotlightView);
             View view = target.getView();
-            view.setId(R.id.tutorial);
+            view.setId(R.id.tutorial_info);
             spotlightView.addView(view);
             spotlightView.turnUp(target.getPoints(), target.getRadius(), duration, animation);
             if (target.getListener() != null) target.getListener().onStarted(target);
@@ -183,7 +192,7 @@ public class Spotlight {
     private void removeTutorialView(SpotlightView spotlightView) {
         for (int i = 0; i < spotlightView.getChildCount(); i++) {
             View view = spotlightView.getChildAt(i);
-            if (view.getId() == R.id.tutorial) {
+            if (view.getId() == R.id.tutorial_info) {
                 spotlightView.removeView(view);
                 break;
             }
@@ -193,31 +202,35 @@ public class Spotlight {
     /**
      * show Spotlight
      */
-    private <T extends Target> void startSpotlight(@NonNull final List<T> targets, final SpotlightView spotlightView) {
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 0f, 1f);
-        objectAnimator.setDuration(START_SPOTLIGHT_DURATION);
-        objectAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                if (startedListener != null) startedListener.onStarted();
-            }
+    private <T extends Target> void startSpotlight(@NonNull final List<T> targets, boolean firstStart, final SpotlightView spotlightView) {
+        if (firstStart) {
+            ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 0f, 1f);
+            objectAnimator.setDuration(START_SPOTLIGHT_DURATION);
+            objectAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    if (startedListener != null) startedListener.onStarted();
+                }
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                startTarget(targets, spotlightView);
-            }
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    startTarget(targets, spotlightView);
+                }
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+                @Override
+                public void onAnimationCancel(Animator animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+                @Override
+                public void onAnimationRepeat(Animator animation) {
 
-            }
-        });
-        objectAnimator.start();
+                }
+            });
+            objectAnimator.start();
+        } else {
+            startTarget(targets, spotlightView);
+        }
     }
 
     /**
@@ -247,7 +260,7 @@ public class Spotlight {
                 public void onAnimationEnd(Animator animation) {
                     final View decorView = ((Activity) context).getWindow().getDecorView();
                     ((ViewGroup) decorView).removeView(spotlightView);
-                    if (endedListener != null) endedListener.onEnded();
+                    if (endedListener != null) endedListener.onEnded(true);
                 }
 
                 @Override
@@ -263,6 +276,7 @@ public class Spotlight {
             objectAnimator.start();
         } else {
             removeTutorialView(spotlightView);
+            if (endedListener != null) endedListener.onEnded(false);
         }
     }
 }

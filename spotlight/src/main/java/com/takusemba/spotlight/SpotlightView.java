@@ -91,6 +91,7 @@ class SpotlightView extends FrameLayout {
      * prepares to show this Spotlight
      */
     private void init() {
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.background));
         bringToFront();
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -117,7 +118,6 @@ class SpotlightView extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.background));
         canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
         if (animator != null) {
             for (PointF point : points) {
