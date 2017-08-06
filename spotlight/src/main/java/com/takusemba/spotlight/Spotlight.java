@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class Spotlight {
 
     private long duration = DEFAULT_DURATION;
     private boolean closeAfterEnd = true;
+    private int backgroundColor = -1;
     private TimeInterpolator animation = DEFAULT_ANIMATION;
     private OnSpotlightStartedListener startedListener;
     private OnSpotlightEndedListener endedListener;
@@ -73,6 +75,11 @@ public class Spotlight {
 
     public Spotlight setCloseAfterEnd(boolean closeAfterEnd) {
         this.closeAfterEnd = closeAfterEnd;
+        return this;
+    }
+
+    public Spotlight setBackgroundColor(@ColorInt int backgroundColor) {
+        this.backgroundColor = backgroundColor;
         return this;
     }
 
@@ -167,6 +174,9 @@ public class Spotlight {
         }
         final View decorView = ((Activity) context).getWindow().getDecorView();
         SpotlightView spotlightView = new SpotlightView(context);
+        if (backgroundColor != -1) {
+            spotlightView.setSpotlightBackgroundColor(backgroundColor);
+        }
         spotlightView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         ((ViewGroup) decorView).addView(spotlightView);

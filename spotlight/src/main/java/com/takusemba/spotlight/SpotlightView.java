@@ -10,6 +10,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -40,19 +41,20 @@ class SpotlightView extends FrameLayout {
     private OnSpotlightStateChangedListener listener;
     private ImageView closeButton;
 
-    /**
-     * Listener to control Target state
-     */
-    interface OnSpotlightStateChangedListener {
-        /**
-         * Called when Target closed completely
-         */
-        void onTargetClosed();
+    public SpotlightView(@NonNull Context context) {
+        super(context, null);
+        init();
+    }
 
-        /**
-         * Called when Target is Clicked
-         */
-        void onTargetClicked();
+    public SpotlightView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs, 0);
+        init();
+    }
+
+    public SpotlightView(@NonNull Context context, @Nullable AttributeSet attrs,
+                         @AttrRes int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
     }
 
     /**
@@ -71,20 +73,8 @@ class SpotlightView extends FrameLayout {
         });
     }
 
-    public SpotlightView(@NonNull Context context) {
-        super(context, null);
-        init();
-    }
-
-    public SpotlightView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs, 0);
-        init();
-    }
-
-    public SpotlightView(@NonNull Context context, @Nullable AttributeSet attrs,
-                         @AttrRes int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+    public void setSpotlightBackgroundColor(@ColorInt int color) {
+        paint.setColor(color);
     }
 
     /**
@@ -95,9 +85,11 @@ class SpotlightView extends FrameLayout {
         bringToFront();
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        int padding = getResources().getDimensionPixelOffset(R.dimen.close_button_padding);
         closeButton = new ImageView(getContext());
         closeButton.setImageResource(R.drawable.ic_close);
         closeButton.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, TOP | END));
+        closeButton.setPadding(padding, padding, padding, padding);
         addView(closeButton);
         spotPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         setOnClickListener(new OnClickListener() {
@@ -189,5 +181,20 @@ class SpotlightView extends FrameLayout {
         animator.setInterpolator(animation);
         animator.setDuration(duration);
         animator.start();
+    }
+
+    /**
+     * Listener to control Target state
+     */
+    interface OnSpotlightStateChangedListener {
+        /**
+         * Called when Target closed completely
+         */
+        void onTargetClosed();
+
+        /**
+         * Called when Target is Clicked
+         */
+        void onTargetClicked();
     }
 }
