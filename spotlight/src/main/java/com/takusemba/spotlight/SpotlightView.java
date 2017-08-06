@@ -95,8 +95,8 @@ class SpotlightView extends FrameLayout {
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
         closeButton = new ImageView(getContext());
-        closeButton.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, TOP | END));
         closeButton.setImageResource(R.drawable.ic_close);
+        closeButton.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, TOP | END));
         addView(closeButton);
         spotPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         setOnClickListener(new OnClickListener() {

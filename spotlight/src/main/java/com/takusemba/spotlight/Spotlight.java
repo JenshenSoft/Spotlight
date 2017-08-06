@@ -171,10 +171,22 @@ public class Spotlight {
     private <T extends Target> void startTarget(@NonNull List<T> targets, SpotlightView spotlightView) {
         if (!targets.isEmpty()) {
             Target target = targets.get(0);
-            spotlightView.removeAllViews();
-            spotlightView.addView(target.getView());
+            removeTutorialView(spotlightView);
+            View view = target.getView();
+            view.setId(R.id.tutorial);
+            spotlightView.addView(view);
             spotlightView.turnUp(target.getPoints(), target.getRadius(), duration, animation);
             if (target.getListener() != null) target.getListener().onStarted(target);
+        }
+    }
+
+    private void removeTutorialView(SpotlightView spotlightView) {
+        for (int i = 0; i < spotlightView.getChildCount(); i++) {
+            View view = spotlightView.getChildAt(i);
+            if (view.getId() == R.id.tutorial) {
+                spotlightView.removeView(view);
+                break;
+            }
         }
     }
 
@@ -249,6 +261,8 @@ public class Spotlight {
                 }
             });
             objectAnimator.start();
+        } else {
+            removeTutorialView(spotlightView);
         }
     }
 }
