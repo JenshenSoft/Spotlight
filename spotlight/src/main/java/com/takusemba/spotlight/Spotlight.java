@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class Spotlight {
      */
     public <T extends Target> void start(@NonNull Activity activity, @NonNull T... targets) {
         SpotlightView spotlightView = createSpotlightView(activity);
-        setUpSpotlightView(activity, spotlightView, Arrays.asList(targets));
+        setUpSpotlightView(activity, spotlightView, new ArrayList<>(Arrays.asList(targets)));
     }
 
     private <T extends Target> void setUpSpotlightView(final Context context, final SpotlightView spotlightView, final @NonNull List<T> targets) {
@@ -105,7 +106,9 @@ public class Spotlight {
             public void onTargetClosed() {
                 if (!targets.isEmpty()) {
                     Target target = targets.remove(0);
-                    if (target.getListener() != null) target.getListener().onEnded(target);
+                    if (target.getListener() != null) {
+                        target.getListener().onEnded(target);
+                    }
                     if (!targets.isEmpty()) {
                         startTarget(targets, spotlightView);
                     } else {
