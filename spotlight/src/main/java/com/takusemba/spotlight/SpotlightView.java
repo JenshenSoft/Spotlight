@@ -15,10 +15,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.view.Gravity.END;
+import static android.view.Gravity.TOP;
 
 /**
  * Spotlight View
@@ -33,6 +38,7 @@ class SpotlightView extends FrameLayout {
     private final List<PointF> points = new ArrayList<>();
     private ValueAnimator animator;
     private OnSpotlightStateChangedListener listener;
+    private ImageView closeButton;
 
     /**
      * Listener to control Target state
@@ -54,6 +60,15 @@ class SpotlightView extends FrameLayout {
      */
     public void setOnSpotlightStateChangedListener(OnSpotlightStateChangedListener l) {
         this.listener = l;
+    }
+
+    public void setOnSpotlightCloseListener(final OnSpotlightCloseListener closeListener) {
+        closeButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                closeListener.onClosed();
+            }
+        });
     }
 
     public SpotlightView(@NonNull Context context) {
@@ -79,6 +94,10 @@ class SpotlightView extends FrameLayout {
         bringToFront();
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        closeButton = new ImageView(getContext());
+        closeButton.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, TOP | END));
+        closeButton.setImageResource(R.drawable.ic_close);
+        addView(closeButton);
         spotPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         setOnClickListener(new OnClickListener() {
             @Override

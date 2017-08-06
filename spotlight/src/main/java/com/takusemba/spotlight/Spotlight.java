@@ -36,9 +36,11 @@ public class Spotlight {
     private static final TimeInterpolator DEFAULT_ANIMATION = new DecelerateInterpolator(2f);
 
     private long duration = DEFAULT_DURATION;
+    private boolean closeAfterEnd;
     private TimeInterpolator animation = DEFAULT_ANIMATION;
     private OnSpotlightStartedListener startedListener;
     private OnSpotlightEndedListener endedListener;
+    private OnSpotlightCloseListener closeListener;
 
     private Spotlight() {
     }
@@ -69,6 +71,11 @@ public class Spotlight {
         return this;
     }
 
+    public Spotlight setCloseAfterEnd(boolean closeAfterEnd) {
+        this.closeAfterEnd = closeAfterEnd;
+        return this;
+    }
+
     /**
      * Sets Spotlight start Listener to Spotlight
      *
@@ -89,6 +96,11 @@ public class Spotlight {
      */
     public Spotlight setOnSpotlightEndedListener(@NonNull final OnSpotlightEndedListener listener) {
         endedListener = listener;
+        return this;
+    }
+
+    public Spotlight setOnSpotlightCloseListener(@NonNull final OnSpotlightCloseListener closeListener) {
+        this.closeListener = closeListener;
         return this;
     }
 
@@ -120,6 +132,12 @@ public class Spotlight {
             @Override
             public void onTargetClicked() {
                 finishTarget(targets, spotlightView);
+            }
+        });
+        spotlightView.setOnSpotlightCloseListener(new OnSpotlightCloseListener() {
+            @Override
+            public void onClosed() {
+                closeListener.onClosed();
             }
         });
         spotlightView.post(new Runnable() {
@@ -204,31 +222,33 @@ public class Spotlight {
      * hide Spotlight
      */
     private void finishSpotlight(final Context context, final SpotlightView spotlightView) {
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 1f, 0f);
-        objectAnimator.setDuration(FINISH_SPOTLIGHT_DURATION);
-        objectAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
+        if (closeAfterEnd) {
+            ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(spotlightView, "alpha", 1f, 0f);
+            objectAnimator.setDuration(FINISH_SPOTLIGHT_DURATION);
+            objectAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                final View decorView = ((Activity) context).getWindow().getDecorView();
-                ((ViewGroup) decorView).removeView(spotlightView);
-                if (endedListener != null) endedListener.onEnded();
-            }
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    final View decorView = ((Activity) context).getWindow().getDecorView();
+                    ((ViewGroup) decorView).removeView(spotlightView);
+                    if (endedListener != null) endedListener.onEnded();
+                }
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+                @Override
+                public void onAnimationCancel(Animator animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+                @Override
+                public void onAnimationRepeat(Animator animation) {
 
-            }
-        });
-        objectAnimator.start();
+                }
+            });
+            objectAnimator.start();
+        }
     }
 }
