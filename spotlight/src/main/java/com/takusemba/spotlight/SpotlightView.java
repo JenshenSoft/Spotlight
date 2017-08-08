@@ -57,6 +57,19 @@ class SpotlightView extends FrameLayout {
         init();
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        points.clear();
+        if (animator == null) {
+            return;
+        }
+        if (animator.isStarted()) {
+            animator.cancel();
+        }
+        animator = null;
+    }
+
     /**
      * sets listener to {@link SpotlightView}
      */
