@@ -101,6 +101,19 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
         }
         return self();
     }
+    /**
+     * Sets the initial position of target
+     * Make sure the view already has a fixed position
+     *
+     * @param view starting position where spotlight reveals
+     * @return This Builder
+     */
+    public T addPointsF(@NonNull List<PointF> points) {
+        for (PointF point : points) {
+            addPoint(point.x, point.y);
+        }
+        return self();
+    }
 
     /**
      * Sets the radius of target
