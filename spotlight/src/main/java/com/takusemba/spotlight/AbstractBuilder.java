@@ -91,12 +91,56 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      * @param view starting position where spotlight reveals
      * @return This Builder
      */
+    public T addPointLazy(final @NonNull View view) {
+        addPointProvider(new PointProvider() {
+            @Override
+            public PointF getPoint() {
+                int[] location = new int[2];
+                view.getLocationInWindow(location);
+                int x = location[0] + view.getWidth() / 2;
+                int y = location[1] + view.getHeight() / 2;
+                return new PointF(x, y);
+            }
+        });
+        return self();
+    }
+
+    /**
+     * Sets the initial position of target
+     * Make sure the view already has a fixed position
+     *
+     * @param view starting position where spotlight reveals
+     * @return This Builder
+     */
     public T addPoint(@NonNull View view) {
         int[] location = new int[2];
         view.getLocationInWindow(location);
         int x = location[0] + view.getWidth() / 2;
         int y = location[1] + view.getHeight() / 2;
         return addPoint(x, y);
+    }
+
+    /**
+     * Sets the initial position of target
+     * Make sure the view already has a fixed position
+     *
+     * @param view starting position where spotlight reveals
+     * @return This Builder
+     */
+    public T addPointsLazy(@NonNull List<View> views) {
+        final int[] location = new int[2];
+        for (final View view : views) {
+            addPointProvider(new PointProvider() {
+                @Override
+                public PointF getPoint() {
+                    view.getLocationInWindow(location);
+                    int x = location[0] + view.getWidth() / 2;
+                    int y = location[1] + view.getHeight() / 2;
+                    return new PointF(x, y);
+                }
+            });
+        }
+        return self();
     }
 
     /**
@@ -116,6 +160,7 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
         }
         return self();
     }
+
     /**
      * Sets the initial position of target
      * Make sure the view already has a fixed position
