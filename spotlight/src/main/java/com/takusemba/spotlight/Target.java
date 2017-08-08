@@ -19,7 +19,7 @@ public interface Target {
      *
      * @return the point of this Target
      */
-    List<PointF> getPoints();
+    List<PointProvider> getPoints();
 
     /**
      * gets the radius of this Target
@@ -47,8 +47,14 @@ public interface Target {
      */
     Target DEFAULT = new Target() {
         @Override
-        public List<PointF> getPoints() {
-            return Collections.singletonList(new PointF(0, 0));
+        public List<PointProvider> getPoints() {
+            PointProvider provider = new PointProvider() {
+                @Override
+                public PointF getPoint() {
+                    return new PointF(0, 0);
+                }
+            };
+            return Collections.singletonList(provider);
         }
 
         @Override

@@ -15,7 +15,7 @@ import java.util.List;
  **/
 public class CustomTarget implements Target {
 
-    private List<PointF> points;
+    private List<PointProvider> points;
     private float radius;
     private View view;
     private OnTargetStateChangedListener listener;
@@ -23,7 +23,7 @@ public class CustomTarget implements Target {
     /**
      * Constructor
      */
-    private CustomTarget(List<PointF> points, float radius, View view, OnTargetStateChangedListener listener) {
+    private CustomTarget(List<PointProvider> points, float radius, View view, OnTargetStateChangedListener listener) {
         this.points = points;
         this.radius = radius;
         this.view = view;
@@ -31,7 +31,7 @@ public class CustomTarget implements Target {
     }
 
     @Override
-    public List<PointF> getPoints() {
+    public List<PointProvider> getPoints() {
         return points;
     }
 

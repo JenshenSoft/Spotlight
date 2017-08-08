@@ -17,7 +17,7 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
 
     private WeakReference<Activity> contextWeakReference;
     protected OnTargetStateChangedListener listener;
-    protected List<PointF> points;
+    protected List<PointProvider> points;
     protected float radius = 100f;
 
     /**
@@ -47,6 +47,16 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
         points = new ArrayList<>();
     }
 
+    public T addPointProvider(PointProvider pointProvider) {
+        points.add(pointProvider);
+        return self();
+    }
+
+    public T addPointsProviders(List<PointProvider> pointProviders) {
+        points.addAll(pointProviders);
+        return self();
+    }
+
     /**
      * Sets the initial position of target
      *
@@ -54,8 +64,13 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
      * @param x starting position of x where spotlight reveals
      * @return This Builder
      */
-    public T addPoint(float x, float y) {
-        points.add(new PointF(x, y));
+    public T addPoint(final float x, final float y) {
+        points.add(new PointProvider() {
+            @Override
+            public PointF getPoint() {
+                return new PointF(x, y);
+            }
+        });
         return self();
     }
 

@@ -21,7 +21,7 @@ import java.util.List;
  **/
 public class SimpleTarget implements Target {
 
-    private List<PointF> points;
+    private List<PointProvider> points;
     private float radius;
     private View view;
     private OnTargetStateChangedListener listener;
@@ -29,7 +29,7 @@ public class SimpleTarget implements Target {
     /**
      * Constructor
      */
-    private SimpleTarget(List<PointF> points, float radius, View view, OnTargetStateChangedListener listener) {
+    private SimpleTarget(List<PointProvider> points, float radius, View view, OnTargetStateChangedListener listener) {
         this.points = points;
         this.radius = radius;
         this.view = view;
@@ -37,7 +37,7 @@ public class SimpleTarget implements Target {
     }
 
     @Override
-    public List<PointF> getPoints() {
+    public List<PointProvider> getPoints() {
         return points;
     }
 
@@ -114,7 +114,7 @@ public class SimpleTarget implements Target {
             View view = getContext().getLayoutInflater().inflate(R.layout.layout_spotlight, null);
             ((TextView) view.findViewById(R.id.title)).setText(title);
             ((TextView) view.findViewById(R.id.description)).setText(description);
-            calculatePosition(points.get(0), radius, view);
+            calculatePosition(points.get(0).getPoint(), radius, view);
             return new SimpleTarget(points, radius, view, listener);
         }
 
