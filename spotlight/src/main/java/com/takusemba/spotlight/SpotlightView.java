@@ -126,8 +126,10 @@ class SpotlightView extends FrameLayout {
         canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
         if (animator != null) {
             for (PointProvider point : points) {
-                PointF pointF = point.getPoint();
-                canvas.drawCircle(pointF.x, pointF.y, (float) animator.getAnimatedValue(), spotPaint);
+                if (point.isVisible()) {
+                    PointF pointF = point.getPoint();
+                    canvas.drawCircle(pointF.x, pointF.y, (float) animator.getAnimatedValue(), spotPaint);
+                }
             }
         }
     }

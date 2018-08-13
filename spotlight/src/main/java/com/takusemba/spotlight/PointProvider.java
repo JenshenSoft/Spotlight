@@ -5,4 +5,6 @@ import android.graphics.PointF;
 
 public interface PointProvider {
     PointF getPoint();
+
+    boolean isVisible();
 }

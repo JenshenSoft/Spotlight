@@ -70,6 +70,11 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
             public PointF getPoint() {
                 return new PointF(x, y);
             }
+
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
         });
         return self();
     }
@@ -100,6 +105,11 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
                 int x = location[0] + view.getWidth() / 2;
                 int y = location[1] + view.getHeight() / 2;
                 return new PointF(x, y);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return view.getVisibility() == View.VISIBLE;
             }
         });
         return self();
@@ -137,6 +147,11 @@ abstract class AbstractBuilder<T extends AbstractBuilder<T, S>, S extends Target
                     int x = location[0] + view.getWidth() / 2;
                     int y = location[1] + view.getHeight() / 2;
                     return new PointF(x, y);
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return view.getVisibility() == View.VISIBLE;
                 }
             });
         }

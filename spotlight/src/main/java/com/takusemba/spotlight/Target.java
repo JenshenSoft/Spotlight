@@ -53,6 +53,11 @@ public interface Target {
                 public PointF getPoint() {
                     return new PointF(0, 0);
                 }
+
+                @Override
+                public boolean isVisible() {
+                    return true;
+                }
             };
             return Collections.singletonList(provider);
         }
